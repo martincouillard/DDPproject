@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Course Project - Developping Data Products</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Course Project - Developping Data Products">
+  <meta name="author" content="MC (21 September 2014)">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Course Project - Developping Data Products</h1>
+    <h2>Analysis of Diamonds dataset</h2>
+    <p>MC (21 September 2014)<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Introduction</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This shiny app predicts the relationship between the price and the carat for diamonds of different colors.</p>
+
+<p>The data consists of a random subset of the &quot;diamonds&quot; dataset in the ggplot2 library. 5000 entries were taken out of 53940 entries in the diamonds dataset simply to speed up the app.</p>
+
+<p>The app consists of two files:</p>
+
+<ul>
+<li>ui.R</li>
+<li>server.R</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>ui.R</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This file produces the user interface.  It displays a side panel on the left, which includes the two inputs:  </p>
+
+<ol>
+<li>diamond color (D, E, F, G, H, I, or J)</li>
+<li>carat value</li>
+</ol>
+
+<p>the side panel includes the documentation for the app.</p>
+
+<p>The user interface also includes a main panel, which displays the outputs (from top to bottom):</p>
+
+<ol>
+<li>The prediction for the diamond price based on the two inputs.</li>
+<li>A plot of the price vs carat, displaying the diamonds with the selected color (red points), the other diamonds (black circles), and the result of the linear regression fit (blue line).</li>
+<li>A table displaying the coefficients of the fit.</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Computation</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>We first select the diamonds with the color specified as an input.  As an examples (for a diamond color: D)</p>
+
+<pre><code class="r">  library(ggplot2)
+  dsmall =diamonds[ sample (1: dim(diamonds)[1] ,5000) ,]
+  dselect &lt;- dsmall[(dsmall$color == &quot;D&quot;),]
+</code></pre>
+
+<p>We then perform a linear regression fit (log(price)~log(carat)) on the subset with the selected color, and we return the coefficients as follow:</p>
+
+<pre><code class="r">  modelP &lt;- lm(log(price)~log(carat), dselect)
+  summary(modelP)$coef[,1:2]
+</code></pre>
+
+<pre><code>##             Estimate Std. Error
+## (Intercept)    8.557    0.01441
+## log(carat)     1.712    0.01876
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>server.R</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>This file has two main components.  The first is the function for the linear regression model:</p>
+
+<pre><code class="r">  modelP &lt;- function(x){
+    out = lm(log(price)~log(carat), x)
+    return(out)
+  }
+</code></pre>
+
+<p>The second component is shinyServer(), which takes in the two inputs (input$carat and input$dcol), and computes the outputs.  For instance, the price prediction is performed as follow:</p>
+
+<pre><code class="r">    output$mpgId &lt;- renderPrint({
+      dselect &lt;- dsmall[(dsmall$color == input$dcol),]
+      M1=modelP(dselect)
+      price_prediction &lt;- predict(M1, data.frame(carat = input$carat))
+      paste(&quot;The predicted value for a carat value of &quot;, input$carat, &quot; is $&quot;, price_prediction)
+    })
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='ui.R'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Computation'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='server.R'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
