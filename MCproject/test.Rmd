@@ -2,7 +2,7 @@
 title: "Course Project - Developping Data Products"
 author: "MC (21 September 2014)"
 highlighter: highlight.js
-output: pdf_document
+output: html
 job: null
 knit: slidify::knit2slides
 mode: selfcontained
@@ -54,13 +54,11 @@ We first select the diamonds with the color specified as an input.  As an exampl
 
 We then perform a linear regression fit (log(price)~log(carat)) on the subset with the selected color, and we return the coefficients as follow:
 
-.emphasized{
-  font-size: 0.2em;
 ```{r}
   modelP <- lm(log(price)~log(carat), dselect)
   summary(modelP)$coef[,1:2]
 ```
-}
+
 ---
 
 ## server.R

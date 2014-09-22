@@ -2,7 +2,7 @@
 title: "Course Project - Developping Data Products"
 author: "MC (21 September 2014)"
 highlighter: highlight.js
-output: pdf_document
+output: html
 job: null
 knit: slidify::knit2slides
 mode: selfcontained
@@ -46,7 +46,8 @@ The user interface also includes a main panel, which displays the outputs (from 
 
 We first select the diamonds with the color specified as an input.  As an examples (for a diamond color: D)
 
-```{r, result=FALSE}
+
+```r
   library(ggplot2)
   dsmall =diamonds[ sample (1: dim(diamonds)[1] ,5000) ,]
   dselect <- dsmall[(dsmall$color == "D"),]
@@ -54,20 +55,26 @@ We first select the diamonds with the color specified as an input.  As an exampl
 
 We then perform a linear regression fit (log(price)~log(carat)) on the subset with the selected color, and we return the coefficients as follow:
 
-.emphasized{
-  font-size: 0.2em;
-```{r}
+
+```r
   modelP <- lm(log(price)~log(carat), dselect)
   summary(modelP)$coef[,1:2]
 ```
-}
+
+```
+##             Estimate Std. Error
+## (Intercept)    8.557    0.01441
+## log(carat)     1.712    0.01876
+```
+
 ---
 
 ## server.R
 
 This file has two main components.  The first is the function for the linear regression model:
 
-```{r, result=FALSE}
+
+```r
   modelP <- function(x){
     out = lm(log(price)~log(carat), x)
     return(out)
@@ -76,7 +83,8 @@ This file has two main components.  The first is the function for the linear reg
 
 The second component is shinyServer(), which takes in the two inputs (input$carat and input$dcol), and computes the outputs.  For instance, the price prediction is performed as follow:
 
-```{r, eval=FALSE}
+
+```r
     output$mpgId <- renderPrint({
       dselect <- dsmall[(dsmall$color == input$dcol),]
       M1=modelP(dselect)

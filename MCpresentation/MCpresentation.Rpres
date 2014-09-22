@@ -1,31 +1,29 @@
----
-title: "Course Project - Developping Data Products"
-author: "MC (21 September 2014)"
-highlighter: highlight.js
-output: pdf_document
-job: null
-knit: slidify::knit2slides
-mode: selfcontained
-hitheme: tomorrow
-subtitle: Analysis of Diamonds dataset
-framework: io2012
-widgets: []
----
+Predicting the price of diamonds based on their carat and color
+========================================================
+author: MC
+date: 21 September 2014
+transition: rotate
+font-family: 'Times New Roman'
 
-## Introduction
+<style type="text/css">
 
-This shiny app predicts the relationship between the price and the carat for diamonds of different colors.
+  body {background-color:LightGoldenRodYellow }
+  p    {font-size:80%; color:darkgreen}
+  
+</style>
 
-The data consists of a random subset of the "diamonds" dataset in the ggplot2 library. 5000 entries were taken out of 53940 entries in the diamonds dataset simply to speed up the app.
+Introduction
+========================================================
 
-The app consists of two files:
-* ui.R
-* server.R
+This shiny app predicts the relationship between the price and the carat for diamonds of different colors.  
 
+Here's a link to the app: [Diamonds_app](https://mcouillard.shinyapps.io/MCapp/)  
+and a screenshot:
 
----
+![alt text](screenshot.png)
 
-## ui.R
+ui.R
+========================================================
 
 This file produces the user interface.  It displays a side panel on the left, which includes the two inputs:  
 
@@ -40,47 +38,45 @@ The user interface also includes a main panel, which displays the outputs (from 
 2. A plot of the price vs carat, displaying the diamonds with the selected color (red points), the other diamonds (black circles), and the result of the linear regression fit (blue line).
 3. A table displaying the coefficients of the fit.
 
----
 
-## Computation
-
+Computation
+========================================================
 We first select the diamonds with the color specified as an input.  As an examples (for a diamond color: D)
 
-```{r, result=FALSE}
+```{r, echo=FALSE,result=FALSE}
   library(ggplot2)
   dsmall =diamonds[ sample (1: dim(diamonds)[1] ,5000) ,]
+```
+```{r, result=FALSE}
   dselect <- dsmall[(dsmall$color == "D"),]
 ```
 
 We then perform a linear regression fit (log(price)~log(carat)) on the subset with the selected color, and we return the coefficients as follow:
-
-.emphasized{
-  font-size: 0.2em;
 ```{r}
   modelP <- lm(log(price)~log(carat), dselect)
   summary(modelP)$coef[,1:2]
 ```
-}
----
 
-## server.R
 
-This file has two main components.  The first is the function for the linear regression model:
+server.R
+========================================================
+This file has two main components.  The 1st is the model:
 
 ```{r, result=FALSE}
   modelP <- function(x){
-    out = lm(log(price)~log(carat), x)
+    out = lm(log(price)~log(carat), x); 
     return(out)
   }
 ```
 
-The second component is shinyServer(), which takes in the two inputs (input$carat and input$dcol), and computes the outputs.  For instance, the price prediction is performed as follow:
+
+The 2nd component shinyServer() takes the two inputs, and computes the outputs.  e.g. for price prediction:
 
 ```{r, eval=FALSE}
     output$mpgId <- renderPrint({
       dselect <- dsmall[(dsmall$color == input$dcol),]
       M1=modelP(dselect)
-      price_prediction <- predict(M1, data.frame(carat = input$carat))
-      paste("The predicted value for a carat value of ", input$carat, " is $", price_prediction)
+      price_pred <- predict(M1, data.frame(carat=input$carat))
+      paste("The predicted price for a carat of ", input$carat, " is $", price_pred)
     })
 ```
